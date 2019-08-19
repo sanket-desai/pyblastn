@@ -1,8 +1,9 @@
+# -*- coding: utf-8 -*-
 #!/usr/bin/python
+
 import sys
 import os.path
 import re
-
 class ResidueError(Exception):
 	def __init__(self, value):
 		self.value = value
@@ -35,7 +36,10 @@ class Sequence(object):
 			sys.exit()
 		if not self.is_dna():
 			self.is_protein()
-			
+	def get_name(self):
+		return self.name_
+	def get_sequence(self):
+		return self.seq_
 	def is_dna(self):
 		return not re.search(r"[^ATGC]",self.seq_)
 	def is_protein(self):
@@ -44,9 +48,9 @@ class Sequence(object):
 		else:
 			for i in self.seq_:
 				if i not in ['U','G','A','V','L','I','P','F','Y','W','S','T','C','M','N','Q','K','R','H','D','E','X','Z','B']: #'X' a feature where the identity of the amino acid is unknown (an X is shown at this position in the sequence) and the only information concerning the modification is that the N-terminus is blocked: P80979 (Blocked amino end (Xaa))
-#'Z' - Note: Pyro-Glu is often indicated in papers as ‘pGlu’ and sometimes, in one-letter code as “U”, although this is now used for selenocysteine. In figures of publications, it may be cited as Z, pQ or E
+				#'Z' - Note: Pyro-Glu is often indicated in papers as ‘pGlu’ and sometimes, in one-letter code as “U”, although this is now used for selenocysteine. In figures of publications, it may be cited as Z, pQ or E
 					raise ResidueError("Residue '%s' cannot be identified as either a nucleotide or amino acid for sequence %s."%(i, self.name_))
-			return True		
+			return True
 	def write(self): #File handle, write permissions
 		n = ">"+self.name_
 		print(n)
@@ -91,3 +95,40 @@ class Sequence(object):
 		else:
 			raise ValueError("Start is greater than end.")
 		return ss
+	#to check whether a fusion is a pseudogene we need to blast it against a pseudogenedb and analyse the results (outputformat6)
+'''	def is_mapping(self, blastnpath, blastndb):
+		ispseudo=False
+		blasttop5rec=executeBlastnOutfmt6Wrapper(self, blastnpath, blastndb, 5)
+		if len(blasttop5rec)>0:
+			for brec in blasttop5rec:
+				if brec.pident > 99.9999 and brec.evalue < 0.00001 and brec.length > 98:
+					ispseudo=True
+					break
+		return ispseudo
+	def get_mapping_database_id(self, blastnpath, blastndb):
+		pseudoid=""
+		blasttop5rec=executeBlastnOutfmt6Wrapper(self, blastnpath, blastndb, 5)
+		if len(blasttop5rec)>0:
+			for brec in blasttop5rec:
+				if brec.pident > 99.9999 and brec.evalue < 0.00001 and brec.length > 98:
+					pseudoid=brec.sseqid
+					break
+		return pseudoid
+	def get_mapping_database_blast_records(self, blastnpath, blastndb):
+		pseudorec=[]
+		blasttop5rec=executeBlastnOutfmt6Wrapper(self, blastnpath, blastndb, 5)
+		if len(blasttop5rec)>0:
+			for brec in blasttop5rec:
+				print(brec.to_string())
+				if brec.pident > 98 and brec.evalue < 0.00001 and brec.mismatch <= 2 and brec.length >= 98 :
+					pseudorec.append(brec)
+					break
+		return pseudorec
+
+	#return a vector of pseudogene alignments - format 6
+	#arguments: completepath of blastN, pseudogene database
+	#start from here, look at the example saved in ..
+	#  def blast_pseudogene_db(blastpath, psedogenedb):
+	#      blastcmd="echo -e \">"+self.get_fusion_name()+"\n"+self.junctionsequence_+"\"| "+blastpath+" -db "+pseudogenedb+" -outfmt 6 -num_alignments 5"
+	#      blastresult=subprocess.run(blastcmd, )
+'''
