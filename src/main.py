@@ -22,7 +22,7 @@ def main():
             if len(blastoutrecs)>0:
                 blast6out=BlastOutputFormat6Record(blastoutrecs[0])
                 print(blast6out.to_string())
-                if blast6out.is_identical(10) and blast6out.is_significant():
+                if blast6out.is_identical(98) and blast6out.is_significant():
                     #print(blast6out.to_string())
                     ofi.write("%s\n" %(blast6out.to_string()) )
             else:
